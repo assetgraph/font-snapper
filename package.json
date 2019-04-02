@@ -1,6 +1,6 @@
 {
   "name": "font-snapper",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "An implementation of the font matching algorithm, https://www.w3.org/TR/css-fonts-3/#font-style-matching",
   "main": "lib/fontSnapper.js",
   "directories": {
