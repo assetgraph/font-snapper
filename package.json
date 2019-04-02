@@ -1,0 +1,40 @@
+{
+  "name": "font-snapper",
+  "version": "0.0.0",
+  "description": "An implementation of the font matching algorithm, https://www.w3.org/TR/css-fonts-3/#font-style-matching",
+  "main": "lib/fontSnapper.js",
+  "directories": {
+    "lib": "lib",
+    "test": "test"
+  },
+  "scripts": {
+    "lint": "eslint . && prettier --check '**/*.js'",
+    "test": "mocha",
+    "coverage": "NODE_ENV=test nyc --reporter=lcov --reporter=text --all -- mocha --reporter dot && echo google-chrome coverage/lcov-report/index.html",
+    "ci": "npm run dist && npm run coverage && npm run lint"
+  },
+  "license": "BSD-3-Clause",
+  "devDependencies": {
+    "eslint": "^5.1.0",
+    "eslint-config-prettier": "^4.0.0",
+    "eslint-config-standard": "^12.0.0",
+    "eslint-plugin-import": "^2.14.0",
+    "eslint-plugin-mocha": "^5.2.1",
+    "eslint-plugin-node": "^8.0.1",
+    "eslint-plugin-promise": "^4.0.1",
+    "eslint-plugin-standard": "^4.0.0",
+    "mocha": "^6.0.2",
+    "nyc": "^13.3.0",
+    "prettier": "~1.16.0",
+    "unexpected": "^11.1.0"
+  },
+  "nyc": {
+    "include": [
+      "lib/**"
+    ]
+  },
+  "dependencies": {
+    "css-font-weight-names": "^0.2.1",
+    "font-family-papandreou": "^0.2.0-patch1"
+  }
+}
