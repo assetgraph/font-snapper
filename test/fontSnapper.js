@@ -955,4 +955,31 @@ describe('fontSnapper', function() {
       });
     });
   });
+
+  // Regression test
+  it('should not break with font-style: oblique <angle>', function() {
+    var snapped = snap(
+      [
+        {
+          'font-stretch': 'normal',
+          'font-weight': '400',
+          'font-style': 'normal',
+          'font-family': 'IBM Plex Sans'
+        }
+      ],
+      {
+        'font-stretch': 'normal',
+        'font-weight': 'bold',
+        'font-style': 'oblique -132.5434grad',
+        'font-family': '"IBM Plex Sans"'
+      }
+    );
+
+    expect(snapped, 'to satisfy', {
+      'font-family': 'IBM Plex Sans',
+      'font-stretch': 'normal',
+      'font-style': 'normal',
+      'font-weight': '400'
+    });
+  });
 });
