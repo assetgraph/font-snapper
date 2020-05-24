@@ -11,7 +11,7 @@
     "lint": "eslint . && prettier --check '**/*.js'",
     "test": "mocha",
     "coverage": "NODE_ENV=test nyc --reporter=lcov --reporter=text --all -- mocha --reporter dot && echo google-chrome coverage/lcov-report/index.html",
-    "ci": "npm run dist && npm run coverage && npm run lint"
+    "test:ci": "npm run coverage"
   },
   "license": "BSD-3-Clause",
   "devDependencies": {
