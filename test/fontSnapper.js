@@ -957,7 +957,7 @@ describe('fontSnapper', function() {
   });
 
   // Regression test
-  it('should not break with font-style: oblique <angle>', function() {
+  it('should not break when propsToSnap contains font-style: oblique <angle>', function() {
     var snapped = snap(
       [
         {
@@ -980,6 +980,31 @@ describe('fontSnapper', function() {
       'font-stretch': 'normal',
       'font-style': 'normal',
       'font-weight': '400'
+    });
+  });
+
+  it('should not break when one of the font face declarations contains font-style: oblique <angle>', function() {
+    const snapped = snap(
+      [
+        {
+          'font-family': 'bar',
+          'font-style': 'oblique 664.8853turn',
+          'font-weight': 'normal',
+          'font-stretch': 'ultra-condensed'
+        }
+      ],
+      {
+        'font-family': 'bar',
+        'font-style': 'oblique',
+        'font-weight': 'normal',
+        'font-stretch': 'condensed'
+      }
+    );
+    expect(snapped, 'to equal', {
+      'font-stretch': 'ultra-condensed',
+      'font-weight': 'normal',
+      'font-style': 'oblique 664.8853turn',
+      'font-family': 'bar'
     });
   });
 });
