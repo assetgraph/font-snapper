@@ -1,17 +1,27 @@
 const fontSnapper = require('../lib/fontSnapper');
-const { namedSyntax } = require('css-generators');
+const { atRule } = require('css-generators');
 const { pickone, shape, array } = require('chance-generators');
+const postcss = require('postcss');
 
 const expect = require('unexpected')
   .clone()
   .use(require('unexpected-check'));
 
-const fontFaceDeclarationGenerator = shape({
-  'font-family': pickone(['foo', 'bar']),
-  'font-style': namedSyntax('font-style'),
-  'font-weight': namedSyntax('font-weight'),
-  'font-stretch': namedSyntax('font-stretch')
-});
+const fontFamilyGenerator = pickone(['foo', 'bar']);
+const fontFaceDeclarationGenerator = atRule({ type: 'font-face' }).map(
+  atRule => {
+    const fontFaceDeclaration = {
+      'font-family': fontFamilyGenerator
+    };
+    const ast = postcss.parse(atRule);
+    for (const node of ast.nodes[0].nodes) {
+      if (['font-weight', 'font-stretch', 'font-style'].includes(node.prop)) {
+        fontFaceDeclaration[node.prop] = node.value;
+      }
+    }
+    return fontFaceDeclaration;
+  }
+);
 
 const inputs = shape({
   fontFaceDeclarations: array(fontFaceDeclarationGenerator, { max: 8 }),
