@@ -1007,4 +1007,269 @@ describe('fontSnapper', function() {
       'font-family': 'bar'
     });
   });
+
+  describe('with font-stretch given as a percentage', function() {
+    it('should not break', function() {
+      const snapped = snap(
+        [
+          {
+            'font-family': 'foo',
+            'font-style': 'normal',
+            'font-weight': 'normal',
+            'font-stretch': '50%'
+          }
+        ],
+        {
+          'font-family': 'foo',
+          'font-style': 'normal',
+          'font-weight': 'normal',
+          'font-stretch': '50%'
+        }
+      );
+      expect(snapped, 'to equal', {
+        'font-family': 'foo',
+        'font-style': 'normal',
+        'font-weight': 'normal',
+        'font-stretch': '50%'
+      });
+    });
+
+    describe('with the available font-stretch values given as the symbolic names', function() {
+      const availableFontFaces = [
+        'ultra-condensed',
+        'extra-condensed',
+        'condensed',
+        'semi-condensed',
+        'normal',
+        'semi-expanded',
+        'expanded',
+        'extra-expanded',
+        'ultra-expanded'
+      ].map(fontStretchValue => ({
+        'font-family': 'foo',
+        'font-style': 'normal',
+        'font-weight': 'normal',
+        'font-stretch': fontStretchValue
+      }));
+
+      it('should map an unavailable percentage > 100% to the closest available match, checking the higher values first', function() {
+        const snapped = snap(availableFontFaces, {
+          'font-family': 'foo',
+          'font-style': 'normal',
+          'font-weight': 'normal',
+          'font-stretch': '137.5%'
+        });
+        expect(snapped['font-stretch'], 'to equal', 'extra-expanded');
+      });
+
+      it('should map an unavailable percentage < 100% to the closest available match, checking the lower values first', function() {
+        const snapped = snap(availableFontFaces, {
+          'font-family': 'foo',
+          'font-style': 'normal',
+          'font-weight': 'normal',
+          'font-stretch': '68.75%'
+        });
+        expect(snapped['font-stretch'], 'to equal', 'extra-condensed');
+      });
+
+      it('should map 50% to ultra-condensed', function() {
+        const snapped = snap(availableFontFaces, {
+          'font-family': 'foo',
+          'font-style': 'normal',
+          'font-weight': 'normal',
+          'font-stretch': '50%'
+        });
+        expect(snapped['font-stretch'], 'to equal', 'ultra-condensed');
+      });
+
+      it('should map 62.5% to extra-condensed', function() {
+        const snapped = snap(availableFontFaces, {
+          'font-family': 'foo',
+          'font-style': 'normal',
+          'font-weight': 'normal',
+          'font-stretch': '62.5%'
+        });
+        expect(snapped['font-stretch'], 'to equal', 'extra-condensed');
+      });
+
+      it('should map to 75% to condensed', function() {
+        const snapped = snap(availableFontFaces, {
+          'font-family': 'foo',
+          'font-style': 'normal',
+          'font-weight': 'normal',
+          'font-stretch': '75%'
+        });
+        expect(snapped['font-stretch'], 'to equal', 'condensed');
+      });
+
+      it('should map 87.5% to semi-condensed', function() {
+        const snapped = snap(availableFontFaces, {
+          'font-family': 'foo',
+          'font-style': 'normal',
+          'font-weight': 'normal',
+          'font-stretch': '87.5%'
+        });
+        expect(snapped['font-stretch'], 'to equal', 'semi-condensed');
+      });
+
+      it('should map 100% to normal', function() {
+        const snapped = snap(availableFontFaces, {
+          'font-family': 'foo',
+          'font-style': 'normal',
+          'font-weight': 'normal',
+          'font-stretch': '100%'
+        });
+        expect(snapped['font-stretch'], 'to equal', 'normal');
+      });
+
+      it('should map 112.5% to semi-expanded', function() {
+        const snapped = snap(availableFontFaces, {
+          'font-family': 'foo',
+          'font-style': 'normal',
+          'font-weight': 'normal',
+          'font-stretch': '112.5%'
+        });
+        expect(snapped['font-stretch'], 'to equal', 'semi-expanded');
+      });
+
+      it('should map 125% to expanded', function() {
+        const snapped = snap(availableFontFaces, {
+          'font-family': 'foo',
+          'font-style': 'normal',
+          'font-weight': 'normal',
+          'font-stretch': '125%'
+        });
+        expect(snapped['font-stretch'], 'to equal', 'expanded');
+      });
+
+      it('should map 150% to extra-expanded', function() {
+        const snapped = snap(availableFontFaces, {
+          'font-family': 'foo',
+          'font-style': 'normal',
+          'font-weight': 'normal',
+          'font-stretch': '150%'
+        });
+        expect(snapped['font-stretch'], 'to equal', 'extra-expanded');
+      });
+
+      it('should map 200% to ultra-expanded', function() {
+        const snapped = snap(availableFontFaces, {
+          'font-family': 'foo',
+          'font-style': 'normal',
+          'font-weight': 'normal',
+          'font-stretch': '200%'
+        });
+        expect(snapped['font-stretch'], 'to equal', 'ultra-expanded');
+      });
+    });
+
+    describe('with the available font-stretch values given as percentages', function() {
+      const availableFontFaces = [
+        '50%',
+        '62.5%',
+        '75%',
+        '87.5%',
+        '100%',
+        '112.5%',
+        '125%',
+        '150%',
+        '200%'
+      ].map(fontStretchValue => ({
+        'font-family': 'foo',
+        'font-style': 'normal',
+        'font-weight': 'normal',
+        'font-stretch': fontStretchValue
+      }));
+
+      it('should map to ultra-condensed to 50%', function() {
+        const snapped = snap(availableFontFaces, {
+          'font-family': 'foo',
+          'font-style': 'normal',
+          'font-weight': 'normal',
+          'font-stretch': 'ultra-condensed'
+        });
+        expect(snapped['font-stretch'], 'to equal', '50%');
+      });
+
+      it('should map to extra-condensed to 62.5%', function() {
+        const snapped = snap(availableFontFaces, {
+          'font-family': 'foo',
+          'font-style': 'normal',
+          'font-weight': 'normal',
+          'font-stretch': 'extra-condensed'
+        });
+        expect(snapped['font-stretch'], 'to equal', '62.5%');
+      });
+
+      it('should map to condensed to 75%', function() {
+        const snapped = snap(availableFontFaces, {
+          'font-family': 'foo',
+          'font-style': 'normal',
+          'font-weight': 'normal',
+          'font-stretch': 'condensed'
+        });
+        expect(snapped['font-stretch'], 'to equal', '75%');
+      });
+
+      it('should map to semi-condensed to 87.5%', function() {
+        const snapped = snap(availableFontFaces, {
+          'font-family': 'foo',
+          'font-style': 'normal',
+          'font-weight': 'normal',
+          'font-stretch': 'semi-condensed'
+        });
+        expect(snapped['font-stretch'], 'to equal', '87.5%');
+      });
+
+      it('should map to normal to 100%', function() {
+        const snapped = snap(availableFontFaces, {
+          'font-family': 'foo',
+          'font-style': 'normal',
+          'font-weight': 'normal',
+          'font-stretch': 'normal'
+        });
+        expect(snapped['font-stretch'], 'to equal', '100%');
+      });
+
+      it('should map to semi-expanded to 112.5%', function() {
+        const snapped = snap(availableFontFaces, {
+          'font-family': 'foo',
+          'font-style': 'normal',
+          'font-weight': 'normal',
+          'font-stretch': 'semi-expanded'
+        });
+        expect(snapped['font-stretch'], 'to equal', '112.5%');
+      });
+
+      it('should map to expanded to 125%', function() {
+        const snapped = snap(availableFontFaces, {
+          'font-family': 'foo',
+          'font-style': 'normal',
+          'font-weight': 'normal',
+          'font-stretch': 'expanded'
+        });
+        expect(snapped['font-stretch'], 'to equal', '125%');
+      });
+
+      it('should map to extra-expanded to 150%', function() {
+        const snapped = snap(availableFontFaces, {
+          'font-family': 'foo',
+          'font-style': 'normal',
+          'font-weight': 'normal',
+          'font-stretch': 'extra-expanded'
+        });
+        expect(snapped['font-stretch'], 'to equal', '150%');
+      });
+
+      it('should map to ultra-expanded to 200%', function() {
+        const snapped = snap(availableFontFaces, {
+          'font-family': 'foo',
+          'font-style': 'normal',
+          'font-weight': 'normal',
+          'font-stretch': 'ultra-expanded'
+        });
+        expect(snapped['font-stretch'], 'to equal', '200%');
+      });
+    });
+  });
 });
