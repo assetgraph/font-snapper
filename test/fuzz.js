@@ -1,5 +1,5 @@
 const fontSnapper = require('../lib/fontSnapper');
-const { atRule } = require('css-generators');
+const { atRule, namedSyntax } = require('css-generators');
 const { pickone, shape, array } = require('chance-generators');
 const postcss = require('postcss');
 
@@ -23,9 +23,16 @@ const fontFaceDeclarationGenerator = atRule({ type: 'font-face' }).map(
   }
 );
 
+const computedStyleGenerator = shape({
+  'font-family': fontFamilyGenerator,
+  'font-style': namedSyntax('font-style'),
+  'font-weight': namedSyntax('font-weight'),
+  'font-stretch': namedSyntax('font-stretch')
+});
+
 const inputs = shape({
   fontFaceDeclarations: array(fontFaceDeclarationGenerator, { max: 8 }),
-  propsToSnap: fontFaceDeclarationGenerator
+  propsToSnap: computedStyleGenerator
 });
 
 describe('font-snapper', function() {
