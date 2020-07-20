@@ -118,11 +118,16 @@ describe('font-snapper', function() {
     this.timeout(300000);
     await expect(
       async ({ fontFaceDeclarations, propsToSnap }) => {
+        for (const [i, fontFaceDeclaration] of fontFaceDeclarations.entries()) {
+          fontFaceDeclaration.i = i;
+        }
         const snapped = fontSnapper(fontFaceDeclarations, propsToSnap);
         for (const [i, fontFaceDeclaration] of fontFaceDeclarations.entries()) {
           fontFaceDeclaration.src = `url(${
-            fontFaceDeclaration === snapped ? 'correct' : 'wrong'
-          }${i}.woff2)`;
+            snapped && fontFaceDeclaration.i === snapped.i
+              ? 'correct'
+              : `wrong${i}`
+          }.woff2)`;
         }
 
         const html = `<!DOCTYPE html>
@@ -142,15 +147,11 @@ ${indent(stringifyCssProps(propsToSnap), '        ')}
   <body>foo</body>
 </html>
 `;
-        console.log(html);
-        console.log('snapped', snapped);
         const loadedFonts = await renderPage(html);
         if (snapped) {
           expect(loadedFonts, 'to equal', [
-            `https://example.com/${snapped.src}`
+            `https://example.com/correct.woff2`
           ]);
-        } else {
-          expect(loadedFonts, 'to equal', []);
         }
       },
       'to be valid for all',
