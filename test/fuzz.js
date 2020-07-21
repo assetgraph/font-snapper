@@ -2,6 +2,7 @@ const fontSnapper = require('../lib/fontSnapper');
 const { atRule, namedSyntax } = require('css-generators');
 const { pickone, shape, array } = require('chance-generators');
 const postcss = require('postcss');
+const _ = require('lodash');
 
 const expect = require('unexpected')
   .clone()
@@ -74,6 +75,19 @@ const font = Buffer.from(
   'base64'
 );
 
+const initialValueByProp = {
+  'font-stretch': 'normal',
+  'font-weight': 'normal',
+  'font-style': 'normal'
+};
+
+function areFontFaceDeclarationsEquivalent(a, b) {
+  return _.isEqual(
+    { ...initialValueByProp, ...a },
+    { ...initialValueByProp, ...b }
+  );
+}
+
 async function renderPage(html) {
   const browser = await getBrowser();
   const page = await browser.newPage();
@@ -118,6 +132,18 @@ describe('font-snapper', function() {
     this.timeout(300000);
     await expect(
       async ({ fontFaceDeclarations, propsToSnap }) => {
+        for (let i = 1; i < fontFaceDeclarations.length; i += 1) {
+          if (
+            fontFaceDeclarations
+              .slice(0, i)
+              .some(prev =>
+                areFontFaceDeclarationsEquivalent(prev, fontFaceDeclarations[i])
+              )
+          ) {
+            fontFaceDeclarations.splice(i, 1);
+            i -= 1;
+          }
+        }
         for (const [i, fontFaceDeclaration] of fontFaceDeclarations.entries()) {
           fontFaceDeclaration.i = i;
         }
