@@ -17,13 +17,6 @@ const fontFaceDeclarationGenerator = atRule({ type: 'font-face' }).map(
     const ast = postcss.parse(atRule);
     for (const node of ast.nodes[0].nodes) {
       if (['font-weight', 'font-stretch', 'font-style'].includes(node.prop)) {
-        if (node.prop === 'font-weight') {
-          // css-generators presently generates insane out of range font-weight values
-          const numericalValue = parseFloat(node.value);
-          if (numericalValue < 0 || numericalValue > 100) {
-            node.value = String(100 + 100 * Math.round(Math.random() * 8));
-          }
-        }
         fontFaceDeclaration[node.prop] = node.value;
       }
     }
