@@ -21,7 +21,7 @@ const fontFaceDeclarationGenerator = atRule({ type: 'font-face' }).map(
           // css-generators presently generates insane out of range font-weight values
           const numericalValue = parseFloat(node.value);
           if (numericalValue < 0 || numericalValue > 100) {
-            node.value = String(Math.round(Math.random() * 100));
+            node.value = String(100 + 100 * Math.round(Math.random() * 8));
           }
         }
         fontFaceDeclaration[node.prop] = node.value;
