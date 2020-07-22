@@ -126,11 +126,23 @@ describe('font-snapper', function() {
     await expect(
       async ({ fontFaceDeclarations, propsToSnap }) => {
         for (let i = 1; i < fontFaceDeclarations.length; i += 1) {
+          const fontFaceDeclaration = fontFaceDeclarations[i];
+          // Right now font-snapper only supports numerical font-weight values of 100, 200, ... 900
+          // but css-generators also puts out values that aren't multiples of 100 as per CSS Fonts Module Level 4:
+          // https://www.w3.org/TR/css-fonts-4/#font-weight-numeric-values
+          if (/^\d+$/.test(fontFaceDeclaration['font-weight'])) {
+            let fontWeight = parseInt(fontFaceDeclaration['font-weight']);
+            fontWeight -= fontWeight % 100;
+            if (fontWeight < 100 || fontWeight > 900) {
+              fontWeight = 400;
+            }
+            fontFaceDeclaration['font-weight'] = String(fontWeight);
+          }
           if (
             fontFaceDeclarations
               .slice(0, i)
               .some(prev =>
-                areFontFaceDeclarationsEquivalent(prev, fontFaceDeclarations[i])
+                areFontFaceDeclarationsEquivalent(prev, fontFaceDeclaration)
               )
           ) {
             fontFaceDeclarations.splice(i, 1);
