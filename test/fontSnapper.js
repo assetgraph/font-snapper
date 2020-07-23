@@ -1272,4 +1272,57 @@ describe('fontSnapper', function() {
       });
     });
   });
+
+  // Regression test for a case found by https://github.com/assetgraph/font-snapper/pull/5
+  it('should prefer a worse font-stretch % match below a desired value <= 100', function() {
+    const snapped = snap(
+      [
+        { 'font-family': 'foo' },
+        {
+          'font-family': 'foo',
+          'font-style': 'italic',
+          'font-stretch': '41%'
+        }
+      ],
+      {
+        'font-family': 'foo',
+        'font-style': 'italic',
+        'font-weight': 'normal',
+        'font-stretch': 'condensed'
+      }
+    );
+
+    expect(snapped, 'to satisfy', {
+      'font-family': 'foo',
+      'font-stretch': '41%',
+      'font-style': 'italic',
+      'font-weight': 400
+    });
+  });
+
+  it('should prefer a worse font-stretch % match above a desired value > 100', function() {
+    const snapped = snap(
+      [
+        { 'font-family': 'foo' },
+        {
+          'font-family': 'foo',
+          'font-style': 'italic',
+          'font-stretch': '180%'
+        }
+      ],
+      {
+        'font-family': 'foo',
+        'font-style': 'italic',
+        'font-weight': 'normal',
+        'font-stretch': 'semi-expanded'
+      }
+    );
+
+    expect(snapped, 'to satisfy', {
+      'font-family': 'foo',
+      'font-stretch': '180%',
+      'font-style': 'italic',
+      'font-weight': 400
+    });
+  });
 });
