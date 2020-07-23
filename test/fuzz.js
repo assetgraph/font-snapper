@@ -1,4 +1,6 @@
 const fontSnapper = require('../lib/fontSnapper');
+const normalizeFontWeight = require('../lib/normalizeFontWeight');
+const normalizeFontStretch = require('../lib/normalizeFontStretch');
 const { atRule, namedSyntax } = require('css-generators');
 const { pickone, shape, array } = require('chance-generators');
 const postcss = require('postcss');
@@ -74,10 +76,30 @@ const initialValueByProp = {
   'font-style': 'normal'
 };
 
+function normalizeFontFaceDeclaration(fontFaceDeclaration) {
+  const normalized = {};
+  for (const propertyName of Object.keys(fontFaceDeclaration)) {
+    let value = fontFaceDeclaration[propertyName];
+    if (propertyName === 'font-stretch') {
+      value = String(value)
+        .split(/\s+/)
+        .map(normalizeFontStretch)
+        .join(' ');
+    } else if (propertyName === 'font-weight') {
+      value = String(value)
+        .split(/\s+/)
+        .map(normalizeFontWeight)
+        .join(' ');
+    }
+    normalized[propertyName] = value;
+  }
+  return normalized;
+}
+
 function areFontFaceDeclarationsEquivalent(a, b) {
   return _.isEqual(
-    { ...initialValueByProp, ...a },
-    { ...initialValueByProp, ...b }
+    normalizeFontFaceDeclaration({ ...initialValueByProp, ...a }),
+    normalizeFontFaceDeclaration({ ...initialValueByProp, ...b })
   );
 }
 
@@ -125,8 +147,12 @@ describe('font-snapper', function() {
     this.timeout(300000);
     await expect(
       async ({ fontFaceDeclarations, propsToSnap }) => {
-        for (let i = 1; i < fontFaceDeclarations.length; i += 1) {
-          const fontFaceDeclaration = fontFaceDeclarations[i];
+        if (/oblique/.test(propsToSnap['font-style'])) {
+          propsToSnap['font-style'] = 'oblique';
+        }
+
+        // Remove some features that font-snapper doesn't support yet:
+        for (const fontFaceDeclaration of fontFaceDeclarations) {
           // Right now font-snapper only supports numerical font-weight values of 100, 200, ... 900
           // but css-generators also puts out values that aren't multiples of 100 as per CSS Fonts Module Level 4:
           // https://www.w3.org/TR/css-fonts-4/#font-weight-numeric-values
@@ -138,6 +164,14 @@ describe('font-snapper', function() {
             }
             fontFaceDeclaration['font-weight'] = String(fontWeight);
           }
+          if (/oblique/.test(fontFaceDeclaration['font-style'])) {
+            fontFaceDeclaration['font-style'] = 'oblique';
+          }
+        }
+
+        // Remove duplicate @font-face declarations so there's always a correct choice:
+        for (let i = 1; i < fontFaceDeclarations.length; i += 1) {
+          const fontFaceDeclaration = fontFaceDeclarations[i];
           if (
             fontFaceDeclarations
               .slice(0, i)
