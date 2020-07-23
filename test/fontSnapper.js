@@ -954,6 +954,129 @@ describe('fontSnapper', function() {
         expect(snapped, 'to satisfy', { 'font-weight': '100 800' });
       });
     });
+
+    describe('with values that are not multiples of 100', function() {
+      describe('without ranges', function() {
+        it('should prefer an exact match', function() {
+          const snapped = snap(
+            [
+              { 'font-family': 'foo', 'font-weight': '251' },
+              { 'font-family': 'foo', 'font-weight': '252' },
+              { 'font-family': 'foo', 'font-weight': '253' },
+              { 'font-family': 'foo', 'font-weight': '254' }
+            ],
+            {
+              'font-family': 'foo',
+              'font-weight': '253'
+            }
+          );
+
+          expect(snapped, 'to satisfy', { 'font-weight': '253' });
+        });
+
+        // If the desired weight is inclusively between 400 and 500, weights greater than
+        // or equal to the target weight are checked in ascending order until 500 is hit
+        // and checked, followed by weights less than the target weight in descending order,
+        // followed by weights greater than 500, until a match is found.
+        describe('when the desired weight is in the 400...500 range', function() {
+          it('should prefer a higher value even though a closer match lower than the desired weight is available', function() {
+            const snapped = snap(
+              [
+                { 'font-family': 'foo', 'font-weight': '401' },
+                { 'font-family': 'foo', 'font-weight': '450' }
+              ],
+              {
+                'font-family': 'foo',
+                'font-weight': '402'
+              }
+            );
+
+            expect(snapped, 'to satisfy', { 'font-weight': '450' });
+          });
+
+          it('should prefer a lower value less than 400 even though a closer match higher than 500 is available', function() {
+            const snapped = snap(
+              [
+                { 'font-family': 'foo', 'font-weight': '501' },
+                { 'font-family': 'foo', 'font-weight': '200' }
+              ],
+              {
+                'font-family': 'foo',
+                'font-weight': '499'
+              }
+            );
+
+            expect(snapped, 'to satisfy', { 'font-weight': '200' });
+          });
+        });
+
+        describe('when the desired weight is lower than 400', function() {
+          it('should choose the closest match lower than the desired value', function() {
+            const snapped = snap(
+              [
+                { 'font-family': 'foo', 'font-weight': '341' },
+                { 'font-family': 'foo', 'font-weight': '343' },
+                { 'font-family': 'foo', 'font-weight': '342' }
+              ],
+              {
+                'font-family': 'foo',
+                'font-weight': '344'
+              }
+            );
+
+            expect(snapped, 'to satisfy', { 'font-weight': '343' });
+          });
+
+          it('should prefer a lower value even though a closer match higher than the desired weight is available', function() {
+            const snapped = snap(
+              [
+                { 'font-family': 'foo', 'font-weight': '301' },
+                { 'font-family': 'foo', 'font-weight': '350' }
+              ],
+              {
+                'font-family': 'foo',
+                'font-weight': '344'
+              }
+            );
+
+            expect(snapped, 'to satisfy', { 'font-weight': '301' });
+          });
+        });
+
+        describe('when the desired weight is higher than 500', function() {
+          it('should choose the closest match higher than the desired value', function() {
+            const snapped = snap(
+              [
+                { 'font-family': 'foo', 'font-weight': '557' },
+                { 'font-family': 'foo', 'font-weight': '556' },
+                { 'font-family': 'foo', 'font-weight': '558' }
+              ],
+              {
+                'font-family': 'foo',
+                'font-weight': '555'
+              }
+            );
+
+            expect(snapped, 'to satisfy', { 'font-weight': '556' });
+          });
+
+          it('should prefer a higher value even though a closer match higher than the desired weight is available', function() {
+            const snapped = snap(
+              [
+                { 'font-family': 'foo', 'font-weight': '557' },
+                { 'font-family': 'foo', 'font-weight': '599' }
+              ],
+              {
+                'font-family': 'foo',
+                'font-weight': '558'
+              }
+            );
+
+            expect(snapped, 'to satisfy', { 'font-weight': '599' });
+          });
+        });
+      });
+    });
   });
 
   // Regression test
