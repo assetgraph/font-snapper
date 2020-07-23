@@ -147,11 +147,10 @@ describe('font-snapper', function() {
     this.timeout(300000);
     await expect(
       async ({ fontFaceDeclarations, propsToSnap }) => {
+        // Remove some features that font-snapper doesn't support yet:
         if (/oblique/.test(propsToSnap['font-style'])) {
           propsToSnap['font-style'] = 'oblique';
         }
-
-        // Remove some features that font-snapper doesn't support yet:
         for (const fontFaceDeclaration of fontFaceDeclarations) {
           // Right now font-snapper only supports numerical font-weight values of 100, 200, ... 900
           // but css-generators also puts out values that aren't multiples of 100 as per CSS Fonts Module Level 4:
