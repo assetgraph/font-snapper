@@ -152,17 +152,6 @@ describe('font-snapper', function() {
           propsToSnap['font-style'] = 'oblique';
         }
         for (const fontFaceDeclaration of fontFaceDeclarations) {
-          // Right now font-snapper only supports numerical font-weight values of 100, 200, ... 900
-          // but css-generators also puts out values that aren't multiples of 100 as per CSS Fonts Module Level 4:
-          // https://www.w3.org/TR/css-fonts-4/#font-weight-numeric-values
-          if (/^\d+$/.test(fontFaceDeclaration['font-weight'])) {
-            let fontWeight = parseInt(fontFaceDeclaration['font-weight']);
-            fontWeight -= fontWeight % 100;
-            if (fontWeight < 100 || fontWeight > 900) {
-              fontWeight = 400;
-            }
-            fontFaceDeclaration['font-weight'] = String(fontWeight);
-          }
           if (/oblique/.test(fontFaceDeclaration['font-style'])) {
             fontFaceDeclaration['font-style'] = 'oblique';
           }
