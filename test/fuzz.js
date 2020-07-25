@@ -4,6 +4,7 @@ const normalizeFontStretch = require('../lib/normalizeFontStretch');
 const { atRule, namedSyntax } = require('css-generators');
 const { pickone, shape, array } = require('chance-generators');
 const postcss = require('postcss');
+const playwright = require('playwright');
 const _ = require('lodash');
 
 const expect = require('unexpected')
@@ -52,16 +53,19 @@ function stringifyFontFaceDeclaration(fontFaceDeclaration) {
   return `@font-face {\n${indent(stringifyCssProps(fontFaceDeclaration))}\n}`;
 }
 
-let browser;
-async function getBrowser() {
-  if (!browser) {
-    browser = await require('puppeteer').launch();
-
+const browserPromiseByProduct = {};
+async function getBrowser(product = 'chromium') {
+  let browserPromise = browserPromiseByProduct[product];
+  if (!browserPromise) {
+    browserPromise = browserPromiseByProduct[product] = playwright[
+      product
+    ].launch();
     after(async function() {
-      await browser.close();
+      this.timeout(20000);
+      await (await browserPromise).close();
     });
   }
-  return browser;
+  return browserPromise;
 }
 
 // Contains "foo":
@@ -106,28 +110,26 @@ function areFontFaceDeclarationsEquivalent(a, b) {
 async function renderPage(html) {
   const browser = await getBrowser();
   const page = await browser.newPage();
-  await page.setRequestInterception(true);
   const loadedFonts = [];
-  page.on('request', request => {
+  await page.route(/\.woff2$/, route => {
+    const request = route.request();
     const url = request.url();
-    if (url.endsWith('.woff2')) {
-      loadedFonts.push(url);
-      request.respond({
-        status: 200,
-        contentType: 'font/woff2',
-        body: font
-      });
-      return;
-    } else if (url === 'https://example.com/') {
-      request.respond({
-        status: 200,
-        contentType: 'text/html',
-        body: html
-      });
-      return;
-    }
-    request.continue();
+    loadedFonts.push(url);
+    route.fulfill({
+      status: 200,
+      contentType: 'font/woff2',
+      body: font
+    });
   });
+
+  await page.route('**/*', route => {
+    route.fulfill({
+      status: 200,
+      contentType: 'text/html',
+      body: html
+    });
+  });
+
   await page.goto('https://example.com/');
   return loadedFonts;
 }
