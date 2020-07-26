@@ -1448,4 +1448,28 @@ describe('fontSnapper', function() {
       'font-weight': 400
     });
   });
+
+  it('should assume 400 when trying to snap font-weight:lighter', function() {
+    const snapped = snap(
+      [
+        {
+          'font-family': 'foo',
+          'font-weight': 'normal'
+        },
+        {
+          'font-family': 'foo',
+          'font-weight': '200'
+        }
+      ],
+      {
+        'font-family': 'foo',
+        'font-weight': 'lighter'
+      }
+    );
+
+    expect(snapped, 'to satisfy', {
+      'font-family': 'foo',
+      'font-weight': '200'
+    });
+  });
 });
