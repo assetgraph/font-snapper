@@ -11,7 +11,7 @@ const expect = require('unexpected')
   .clone()
   .use(require('unexpected-check'));
 
-const fontFamilyGenerator = pickone(['foo', 'bar']);
+const fontFamilyGenerator = pickone(['foo']);
 const fontFaceDeclarationGenerator = atRule({ type: 'font-face' }).map(
   atRule => {
     const fontFaceDeclaration = {
@@ -179,9 +179,7 @@ describe('font-snapper', function() {
         const snapped = fontSnapper(fontFaceDeclarations, propsToSnap);
         for (const [i, fontFaceDeclaration] of fontFaceDeclarations.entries()) {
           fontFaceDeclaration.src = `url(${
-            snapped && fontFaceDeclaration.i === snapped.i
-              ? 'correct'
-              : `wrong${i}`
+            fontFaceDeclaration.i === snapped.i ? 'correct' : `wrong${i}`
           }.woff2)`;
         }
 
@@ -203,11 +201,7 @@ ${indent(stringifyCssProps(propsToSnap), '        ')}
 </html>
 `;
         const loadedFonts = await renderPage(html);
-        if (snapped) {
-          expect(loadedFonts, 'to equal', [
-            `https://example.com/correct.woff2`
-          ]);
-        }
+        expect(loadedFonts, 'to equal', [`https://example.com/correct.woff2`]);
       },
       'to be valid for all',
       inputs
