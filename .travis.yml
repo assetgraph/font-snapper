@@ -1,3 +1,4 @@
+dist: bionic
 language: node_js
 node_js:
   - 10
@@ -9,6 +10,12 @@ env:
   global:
     # Use node_modules to cache the downloaded browsers: https://github.com/microsoft/playwright/blob/98cc9db8e888aa1f32c06fd73abd9a7135f83fe8/docs/ci.md#caching-browsers
     - PLAYWRIGHT_BROWSERS_PATH=0
+
+addons:
+  apt:
+    packages:
+      # This is required to run chromium
+      - libgbm1
 
 matrix:
   include:
