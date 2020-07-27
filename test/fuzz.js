@@ -146,7 +146,7 @@ describe('font-snapper', function() {
   });
 
   it('should snap to the same font as Chrome', async function() {
-    this.timeout(300000);
+    this.timeout(30000000);
     await expect(
       async ({ fontFaceDeclarations, propsToSnap }) => {
         let obliqueIsInvolved = false;
