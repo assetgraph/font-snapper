@@ -149,20 +149,17 @@ describe('font-snapper', function() {
     this.timeout(30000000);
     await expect(
       async ({ fontFaceDeclarations, propsToSnap }) => {
-        let obliqueIsInvolved = false;
         // Remove some features that font-snapper doesn't support yet:
         if (/lighter|bolder/.test(propsToSnap['font-weight'])) {
           propsToSnap['font-weight'] = '400';
         }
         // oblique with an angle is not supported yet: https://github.com/assetgraph/font-snapper/issues/7
         if (/oblique/.test(propsToSnap['font-style'])) {
-          propsToSnap['font-style'] = 'oblique';
-          obliqueIsInvolved = true;
+          propsToSnap['font-style'] = 'italic';
         }
         for (const fontFaceDeclaration of fontFaceDeclarations) {
           if (/oblique/.test(fontFaceDeclaration['font-style'])) {
-            fontFaceDeclaration['font-style'] = 'oblique';
-            obliqueIsInvolved = true;
+            fontFaceDeclaration['font-style'] = 'italic';
           }
           if (/\s+/.test(fontFaceDeclaration['font-weight'])) {
             // font-weight ranges are not supported yet: https://github.com/assetgraph/font-snapper/issues/9
@@ -219,11 +216,7 @@ ${indent(stringifyCssProps(propsToSnap), '        ')}
   <body>foo</body>
 </html>
 `;
-        const loadedFonts = await renderPage(
-          html,
-          // https://bugs.chromium.org/p/chromium/issues/detail?id=918475
-          obliqueIsInvolved ? 'firefox' : 'chromium'
-        );
+        const loadedFonts = await renderPage(html);
         // Sometimes Firefox downloads the wrong font also, tolerate that by only checking that the correct one gets downloaded first:
         expect(loadedFonts[0], 'to equal', 'https://example.com/correct.woff2');
       },
