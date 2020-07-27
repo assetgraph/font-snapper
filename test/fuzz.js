@@ -61,7 +61,7 @@ async function getBrowser(product = 'chromium') {
       product
     ].launch();
     after(async function() {
-      this.timeout(20000);
+      this.timeout(300000);
       await (await browserPromise).close();
     });
   }
@@ -151,6 +151,10 @@ describe('font-snapper', function() {
       async ({ fontFaceDeclarations, propsToSnap }) => {
         let obliqueIsInvolved = false;
         // Remove some features that font-snapper doesn't support yet:
+        if (/lighter|bolder/.test(propsToSnap['font-weight'])) {
+          propsToSnap['font-weight'] = '400';
+        }
+        // oblique with an angle is not supported yet: https://github.com/assetgraph/font-snapper/issues/7
         if (/oblique/.test(propsToSnap['font-style'])) {
           propsToSnap['font-style'] = 'oblique';
           obliqueIsInvolved = true;
@@ -159,6 +163,18 @@ describe('font-snapper', function() {
           if (/oblique/.test(fontFaceDeclaration['font-style'])) {
             fontFaceDeclaration['font-style'] = 'oblique';
             obliqueIsInvolved = true;
+          }
+          if (/\s+/.test(fontFaceDeclaration['font-weight'])) {
+            // font-weight ranges are not supported yet: https://github.com/assetgraph/font-snapper/issues/9
+            fontFaceDeclaration['font-weight'] = fontFaceDeclaration[
+              'font-weight'
+            ].split(/\s+/)[0];
+          }
+
+          if (/\s+/.test(fontFaceDeclaration['font-stretch'])) {
+            fontFaceDeclaration['font-stretch'] = fontFaceDeclaration[
+              'font-stretch'
+            ].split(/\s+/)[0];
           }
         }
 
@@ -208,7 +224,8 @@ ${indent(stringifyCssProps(propsToSnap), '        ')}
           // https://bugs.chromium.org/p/chromium/issues/detail?id=918475
           obliqueIsInvolved ? 'firefox' : 'chromium'
         );
-        expect(loadedFonts, 'to equal', [`https://example.com/correct.woff2`]);
+        // Sometimes Firefox downloads the wrong font also, tolerate that by only checking that the correct one gets downloaded first:
+        expect(loadedFonts[0], 'to equal', 'https://example.com/correct.woff2');
       },
       'to be valid for all',
       inputs
