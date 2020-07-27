@@ -16,7 +16,7 @@
   "license": "BSD-3-Clause",
   "devDependencies": {
     "chance-generators": "^3.5.2",
-    "css-generators": "^0.2.3",
+    "css-generators": "^0.3.0",
     "eslint": "^5.1.0",
     "eslint-config-prettier": "^4.0.0",
     "eslint-config-standard": "^12.0.0",
