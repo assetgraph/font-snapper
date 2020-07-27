@@ -145,7 +145,7 @@ describe('font-snapper', function() {
     );
   });
 
-  it('should snap to the same font as Chrome', async function() {
+  it('should snap to the same font as Chromium Headless', async function() {
     this.timeout(30000000);
     await expect(
       async ({ fontFaceDeclarations, propsToSnap }) => {
