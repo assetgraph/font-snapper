@@ -107,8 +107,8 @@ function areFontFaceDeclarationsEquivalent(a, b) {
   );
 }
 
-async function renderPage(html) {
-  const browser = await getBrowser();
+async function renderPage(html, product) {
+  const browser = await getBrowser(product);
   const page = await browser.newPage();
   const loadedFonts = [];
   await page.route(/\.woff2$/, route => {
@@ -149,13 +149,16 @@ describe('font-snapper', function() {
     this.timeout(300000);
     await expect(
       async ({ fontFaceDeclarations, propsToSnap }) => {
+        let obliqueIsInvolved = false;
         // Remove some features that font-snapper doesn't support yet:
         if (/oblique/.test(propsToSnap['font-style'])) {
           propsToSnap['font-style'] = 'oblique';
+          obliqueIsInvolved = true;
         }
         for (const fontFaceDeclaration of fontFaceDeclarations) {
           if (/oblique/.test(fontFaceDeclaration['font-style'])) {
             fontFaceDeclaration['font-style'] = 'oblique';
+            obliqueIsInvolved = true;
           }
         }
 
@@ -200,7 +203,11 @@ ${indent(stringifyCssProps(propsToSnap), '        ')}
   <body>foo</body>
 </html>
 `;
-        const loadedFonts = await renderPage(html);
+        const loadedFonts = await renderPage(
+          html,
+          // https://bugs.chromium.org/p/chromium/issues/detail?id=918475
+          obliqueIsInvolved ? 'firefox' : 'chromium'
+        );
         expect(loadedFonts, 'to equal', [`https://example.com/correct.woff2`]);
       },
       'to be valid for all',
