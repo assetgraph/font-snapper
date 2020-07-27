@@ -61,7 +61,7 @@ async function getBrowser(product = 'chromium') {
       product
     ].launch();
     after(async function() {
-      this.timeout(300000);
+      this.timeout(30000);
       await (await browserPromise).close();
     });
   }
@@ -146,7 +146,7 @@ describe('font-snapper', function() {
   });
 
   it('should snap to the same font as Chromium Headless', async function() {
-    this.timeout(30000000);
+    this.timeout(100000);
     await expect(
       async ({ fontFaceDeclarations, propsToSnap }) => {
         // Remove some features that font-snapper doesn't support yet:
